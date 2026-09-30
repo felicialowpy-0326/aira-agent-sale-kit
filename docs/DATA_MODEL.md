@@ -1,54 +1,34 @@
 # Data Model
 
-### units
-| Field | Type |
-|---|---|
-| id | uuid PK |
-| user_id | uuid (nullable, for RLS later) |
-| unit_number | text, unique |
-| tower | text (A/B), check constraint |
-| size_sqft | numeric |
-| size_sqm | numeric |
-| selling_price | numeric |
-| price_per_sqft | numeric |
-| status | text (available/reserved/booked/sold) |
-| created_at | timestamptz |
+## units
+- id (uuid PK) · user_id (uuid, nullable) · created_at
+- tower (text: 'A'/'B') · unit_number (text, unique) · floor (int)
+- size_sqft (numeric) · size_sqm (numeric)
+- selling_price (numeric RM) · price_per_sqft (numeric)
+- status (text: available / booked / sold)
 
-### bookings
-| Field | Type |
-|---|---|
-| id | uuid PK |
-| user_id | uuid (nullable) |
-| unit_id | uuid FK → units |
-| purchaser_name | text |
-| purchaser_ic | text |
-| booking_form_signed | boolean |
-| earnest_deposit_paid | boolean |
-| deposit_amount | numeric |
-| deposit_date | date |
-| booking_status | text (pending/confirmed/rejected/cancelled) |
-| sales_agent_name | text |
-| authorized_representative | text |
-| authorized_at | timestamptz |
-| created_at | timestamptz |
+Unique index on `unit_number`. RLS enabled (permissive v1).
 
-### weekly_summaries
-| Field | Type |
-|---|---|
-| id | uuid PK |
-| user_id | uuid (nullable) |
-| week_start / week_end | date |
-| new_bookings_count | integer |
-| confirmed_bookings_count | integer |
-| total_deposit_collected | numeric |
-| summary_text | text (AI-drafted value) |
-| source | text | 
-| confidence | numeric |
-| review_status | text (unreviewed/reviewed) |
-| created_at | timestamptz |
+## bookings
+- id (uuid PK) · user_id (uuid, nullable) · created_at
+- unit_id (uuid FK→units, NOT NULL)
+- purchaser_name (text, req) · purchaser_ic (text) · purchaser_email · purchaser_phone
+- booking_form_signed (bool, default false)
+- earnest_deposit_amount (numeric, default 0) · earnest_deposit_paid (bool, default false) · deposit_paid_at (timestamptz)
+- agent_name (text, req) · status (text: pending / confirmed / cancelled)
+- sales_dept_approved_by (text) · approved_at (timestamptz) · booking_date (date)
 
-**Relationships:** bookings.unit_id → units.id (1 active booking per reserved/booked unit). weekly_summaries aggregates bookings by week.
+**Partial unique index** on `(unit_id) WHERE status IN ('pending','confirmed')` — DB-level duplicate-booking prevention.
 
-**RLS:** v1 permissive (all open for demo). Lock-down: agents see own bookings (auth.uid() = user_id), sales dept sees all.
+One unit → at most one active booking.
 
-**AI fields:** weekly_summaries.summary_text stores drafted text with source + confidence + review_status.
+## audit_logs
+- id (uuid PK) · user_id (uuid, nullable) · created_at
+- action (text: booking_created / deposit_confirmed / booking_confirmed / booking_cancelled)
+- entity_type (text) · entity_id (uuid) · details (jsonb)
+
+## AI Fields (future, not v1)
+When AI-drafted weekly summaries are added: store `summary_text` (value) + `source` (text) + `confidence` (numeric) + `review_status` (text, default 'unreviewed').
+
+## RLS
+v1: permissive (select + write for all, no login). Lock-down sprint: agents see own bookings only; sales dept sees all; units readable by all authenticated users.

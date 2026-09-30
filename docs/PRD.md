@@ -1,27 +1,33 @@
-# Sales Kit for Real Estate Agents
+# Sales Kit — Product Requirements
 
-**Problem:** Agents sell units across two residential towers with no central view of availability, pricing, or booking status. Duplicate bookings happen. No weekly summary of sales activity exists.
+## Problem
+Real estate agents selling units across two towers need a single source of truth for availability, pricing, and booking status. Without it, two agents can book the same unit, deposits go untracked, and weekly activity is invisible to management.
 
-**Target users:** Appointed real estate agents (field) and sales department staff (office).
+## Target User
+- **Sales Agent**: views available units, creates bookings, tracks deposit payment
+- **Sales Dept Staff**: reviews bookings, confirms acceptance, reads weekly summaries
 
-**Core objects:**
-- **Unit** — unit_number, tower (A/B), size_sqft, size_sqm, selling_price, price_per_sqft, status (available/reserved/booked/sold)
-- **Booking** — unit, purchaser_name, purchaser_ic, booking_form_signed, earnest_deposit_paid, deposit_amount, deposit_date, booking_status (pending/confirmed/rejected), sales_agent_name, authorized_representative, authorized_at
-- **Weekly Summary** — week_start, week_end, new_bookings_count, confirmed_bookings_count, total_deposit_collected, summary_text
+## Core Objects
+- **Unit**: tower (A/B), unit number, floor, size (sqft + sqm), selling price, price per sqft, status
+- **Booking**: purchaser info, booking form signed, earnest deposit (amount + paid), agent, status, confirmation
+- **Audit Log**: every booking action recorded
 
-**MVP (v1) checklist:**
-- [ ] View units separated by Tower A and Tower B
-- [ ] Show selling price, price per sq ft, unit number, size (sq ft + sq m)
-- [ ] Filter available units
-- [ ] Create a booking for a unit (block duplicates — reserved/booked units can't be re-booked)
+## MVP (v1) Checklist
+- [ ] Unit inventory split by Tower A / Tower B with selling price, PSF, sqft, sqm
+- [ ] Create a booking on an available unit
+- [ ] Prevent duplicate booking on the same unit (database-enforced)
 - [ ] Track booking form signed + earnest deposit paid
-- [ ] Generate weekly booking summary (new bookings, confirmed, deposits collected)
-- [ ] Dashboard overview with unit availability counts
-- [ ] All screens viewable without login (seed demo data)
+- [ ] Booking confirmation (pending → confirmed)
+- [ ] Weekly summary: new bookings this week with deposit totals
+- [ ] All screens viewable without login (seeded demo data)
 
-**Non-goals (v1):**
-- No reservation enforcement without complete booking info + documents + deposit
-- No sales dept authorization gate on booking acceptance
-- No document upload, no payment integration, no login/auth
+## Non-Goals (v1)
+- Document upload / attachment storage
+- Mandatory completeness validation (all fields required before booking)
+- Sales Department approval gate for booking acceptance
+- Reservation without booking (hold without purchaser)
+- Agent login and per-user data isolation
+- Email delivery of weekly summary
 
-**Success criteria:** Agent opens app, views Tower A available units with full pricing, books unit A-12-02 for a purchaser (form signed, deposit entered), unit becomes "reserved" preventing duplicate booking, and the weekly summary page shows this as a new booking with deposit collected.
+## Success Criteria
+An agent opens the unit inventory, sees Tower A and B separately, books an available unit with purchaser name and deposit amount, and the unit becomes unavailable to others. At week's end, the weekly summary page shows that booking with the correct purchaser, price, deposit status, and agent name.

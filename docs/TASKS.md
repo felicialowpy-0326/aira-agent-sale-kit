@@ -1,61 +1,34 @@
-# Sprints
+# Tasks
 
-### Sprint 1: Unit Inventory Foundation
-**Goal:** Show available units separated by Tower A and Tower B with full pricing.
-- [ ] Create DB schema: units, bookings, weekly_summaries tables with RLS
-- [ ] Seed 6 demo units across Tower A (3) and Tower B (3)
-- [ ] Build left sidebar nav shell (desktop sidebar, mobile hamburger)
-- [ ] Build Units page with Tower A / Tower B tab toggle
-- [ ] Display: unit number, size sqft, size sqm, selling price, price per sqft
-- [ ] Status filter (available/reserved/booked/sold)
-- [ ] Empty state: "No units in this tower" + loading skeleton
+## Sprint 1 — DB + Unit Inventory
+- Create units/bookings/audit_logs tables + indexes, seed 8 units + 2 bookings + 4 logs
+- Units list: Tower A/B tab filter, card shows unit no, floor, sqft, sqm, price, PSF, status
+- Empty + loading states
+**DoD**: Open app without login → see Tower A and B units with prices and availability.
 
-**DoD:** Anonymous visitor opens app, sees Tower A with 3 units showing real prices/sizes, switches to Tower B, sees 3 units — no login required.
+## Sprint 2 — Booking Engine ← core action
+- "Book Unit" on available units → form (purchaser name, IC, contact, deposit, agent)
+- DB unique index rejects duplicate booking on same unit
+- Success: unit → booked + audit log; error UI for duplicates
+- Booking list + detail: toggle form-signed/deposit-paid, confirm/cancel with audit log
+**DoD**: Book a unit; second booking on same unit rejected. Cancel → unit back to available.
 
-### Sprint 2: Booking Engine
-**Goal:** Agents can create bookings; duplicates are blocked.
-- [ ] Build booking form (purchaser name, IC, form signed, deposit amount, deposit date)
-- [ ] On submit: insert booking, update unit status → "reserved"
-- [ ] Block booking if unit status is reserved/booked (server-side check)
-- [ ] Booking list page with status badges
-- [ ] Edit booking: toggle deposit paid, form signed
-- [ ] Error state: "This unit is already booked" on duplicate attempt
-- [ ] Empty state: "No bookings yet" + loading skeleton
-- [ ] Seed 3 demo bookings
+## Sprint 3 — Weekly Summary ← v1 FUNCTIONAL
+- Weekly summary: current week Mon–Sun, total bookings, deposit collected, by tower
+- Booking rows: unit, purchaser, price, deposit status, agent, date → link to detail
+- Empty + print-friendly states
+**DoD**: Create a booking this week → summary shows it with correct details. End-to-end usable.
 
-**DoD:** Agent books A-12-02, unit becomes "reserved". Second attempt to book A-12-02 shows error.
+## Sprint 4 — Lock It Down
+- Supabase auth (agent + sales dept roles)
+- RLS: agents see own bookings, sales dept sees all, units visible to all authenticated
+- Redirect unauthenticated to login
+**DoD**: Agent sees only own bookings; sales dept sees all.
 
-### Sprint 3: Weekly Summary + Dashboard → v1 FUNCTIONAL
-**Goal:** Weekly booking summary works end-to-end.
-- [ ] Build Dashboard: total units, available count, reserved count, recent bookings
-- [ ] Compute weekly summary: new bookings, confirmed, sum deposits
-- [ ] Weekly Summary page with week range selector
-- [ ] Draft summary text (rule-based: "N new, M confirmed, RM X collected")
-- [ ] Store summary with source/confidence/review_status
-- [ ] Dashboard shows latest week summary
-- [ ] Loading and empty states
-
-**DoD:** Agent creates a booking, opens Weekly Summary, sees accurate counts + deposit total for current week.
-
-### Sprint 4: Lock It Down (Auth + RLS)
-**Goal:** Auth + per-user data isolation.
-- [ ] Add Supabase Auth (login/signup pages)
-- [ ] Owner-scoped RLS: agents see own bookings only
-- [ ] Sales dept role: sees all bookings + units
-- [ ] Set user_id from auth context on new records
-- [ ] Audit log table for booking status changes
-- [ ] Block anonymous access; migrate seed data
-
-**DoD:** Logged-in agent sees only own bookings; sales dept sees all; anonymous blocked; status changes audited.
-
----
-
-**v1 functional milestone:** End of Sprint 3.
-
-**Gantt:**
+## Gantt
 ```
-Sprint 1  ████  Units DB + Tower A/B views
-Sprint 2  ████  Booking engine + duplicate prevention
-Sprint 3  ████  Weekly summary + dashboard (v1 functional)
-Sprint 4  ████  Lock it down (auth + RLS)
+S1  ████░░░░░░  DB + Unit Inventory
+S2  ░░░░████░░  Booking Engine
+S3  ░░░░░░░░██  Weekly Summary [v1]
+S4  ░░░░░░░░░░  Lock It Down
 ```

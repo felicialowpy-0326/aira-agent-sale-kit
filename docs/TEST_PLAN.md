@@ -1,28 +1,22 @@
 # Test Plan
 
-### Success scenario (end-to-end)
-1. Open app — no login required
-2. Click "Units" in sidebar → Tower A tab active
-3. Verify 3 units shown: unit number, sqft, sqm, price, price/sqft
-4. Switch to Tower B → verify 3 different units
-5. Click available unit A-12-02 → "Create Booking" opens
-6. Enter purchaser "Test Buyer", IC "900101-08-1234"
-7. Check "Booking form signed", enter deposit 5000, date today
-8. Submit → Bookings list shows new "pending" booking
-9. Return to Units → A-12-02 shows "reserved"
-10. Try booking A-12-02 again → "already booked" error
-11. Open Weekly Summary → 1 new booking, deposit RM 5,000
+## Success Scenario (v1)
+1. Open app (no login) → Units page loads with Tower A tab active
+2. Switch to Tower B → see 4 units with prices and sizes
+3. Click "Book Unit" on an available unit (e.g. B-10-01)
+4. Fill: purchaser "Siti Aminah", IC "901225-08-9012", phone "011-2223333", deposit RM 5,000, agent "Jason Tan"
+5. Submit → success message, unit status changes to "booked"
+6. Open Bookings page → see the new booking with "pending" status
+7. Open booking detail → toggle "Booking form signed" and "Earnest deposit paid"
+8. Click "Confirm Booking" → status moves to "confirmed"
+9. Go back to Units → B-10-01 shows "booked" badge
+10. Try to book B-10-01 again → error: "This unit is already booked"
+11. Open Weekly Summary → see this week's booking listed with correct purchaser, price, deposit, agent
 
-### Empty states
-- Tower with no available units → "No available units in this tower"
-- Bookings empty → "No bookings yet — create one from Units"
-- Weekly Summary empty → "No bookings this week yet"
-
-### Error cases
-- Submit without purchaser name → "Purchaser name required"
-- Book reserved/booked unit → "This unit is already reserved"
-- Network failure on submit → "Could not save booking — try again"
-
-### Loading states
-- Units page → skeleton cards before data
-- Summary page → spinner before counts
+## Empty / Error Cases
+- **No available units in tower**: Switch to a tower where all are booked → "No available units" message
+- **No bookings this week**: Open Weekly Summary on a week with no bookings → "No new bookings this week"
+- **Duplicate booking**: Submit booking on already-booked unit → error toast "This unit is already booked"
+- **Missing required fields**: Submit form without purchaser name → validation error, no submit
+- **Network error**: Supabase unreachable → error state on Units page with retry button
+- **Cancel booking**: Cancel a pending booking → unit returns to "available" in inventory

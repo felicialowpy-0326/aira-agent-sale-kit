@@ -1,29 +1,38 @@
 # Agentic Layer
 
-**Draftable (low risk — auto):**
-- Compute price_per_sqft and size_sqm on unit save
-- Calculate booking completeness score
-- Draft weekly summary text ("3 new bookings, 1 confirmed, RM 18,900 collected")
-- Tag incomplete bookings for follow-up
+## Risk Levels
 
-**Executable after approval (medium risk):**
-- Mark earnest deposit as paid (agent confirms)
-- Update booking status pending → confirmed (requires sales dept rep name)
+### Low — Auto
+- Calculate booking completeness score on save
+- Aggregate weekly bookings into summary
+- Tag bookings by tower and status
 
-**Human-only (critical):**
-- Authorize/confirm a booking (sales dept representative)
-- Reject or cancel a booking
-- Delete any record
-- Send weekly summary notification to external recipients
+### Medium — Draftable (light approval)
+- Draft weekly summary notification text for Sales Dept review
+- Suggest available units matching a purchaser's budget range
 
-**Named tools:**
-- `compute_unit_pricing` (low)
-- `compute_booking_completeness` (low)
-- `draft_weekly_summary` (low)
-- `update_booking_status` (medium)
-- `send_weekly_notification` (high)
-- `authorize_booking` (human-only)
+### High — Always approval
+- **Confirm a booking** (pending → confirmed): requires Sales Dept staff action
+- **Send weekly summary** to distribution list: requires approval before send
+- Update unit status to "sold" (final sale)
 
-**Audit log fields:** action, actor_name, actor_role, target_type, target_id, old_value, new_value, timestamp, metadata
+### Critical — Human-only
+- Cancel a confirmed booking and release the unit
+- Delete a booking record
+- Modify deposit amount after confirmation
 
-**v1:** Auto-compute pricing + completeness, draft summary (rule-based). **Later:** Approval workflow for booking confirmation, automated notification sending, full audit trail with auth.
+## Named Tools
+- `create_booking` — inserts booking, returns success or duplicate error
+- `confirm_booking` — flips status, records sales_dept_approved_by
+- `cancel_booking` — sets status cancelled, releases unit
+- `generate_weekly_summary` — aggregates bookings for date range
+- `draft_summary_notification` — produces text draft for review (later)
+
+No raw `run_any` / `send_any` — only these named tools.
+
+## Audit Log Fields
+Every action logs: action name, entity_type, entity_id, timestamp, user_id (when auth added), details (jsonb with unit_number, purchaser, agent, amount).
+
+## v1 vs Later
+- **v1**: create_booking, confirm_booking, cancel_booking, generate_weekly_summary (all human-triggered)
+- **Later**: draft_summary_notification with approval gate, auto-send on schedule

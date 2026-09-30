@@ -1,6 +1,6 @@
 # aira-agent-sale-kit
 
-Sales Kit app for real estate agents to manage unit inventory across Tower A/B, create bookings with duplicate prevention, track deposits, and generate weekly booking summaries.
+Sales Kit for real estate agents to manage unit inventory across two towers, prevent duplicate bookings, track deposits, and generate weekly booking summaries.
 
 ## ⚠️ READ THIS BEFORE WRITING ANY CODE
 A complete, correct plan for this app is already committed in `/docs`. Do **not** start

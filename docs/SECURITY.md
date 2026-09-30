@@ -1,14 +1,23 @@
 # Security
 
-**Secret handling:** Supabase service role key server-side only (never in `NEXT_PUBLIC_*`). Frontend uses anon key with RLS. No secrets in client bundles.
+## Secret Handling
+- Supabase URL + anon key: public, safe for frontend
+- Supabase service role key: server-side only, never exposed to client
+- No other secrets in v1 (no email provider, no payment gateway)
 
-**Permission model:**
-- **v1 (demo):** Permissive RLS — all tables readable/writable without login. Seed data visible to anonymous visitors.
-- **Lock-down:** Owner-scoped RLS — agents see/edit only own bookings (auth.uid() = user_id). Sales dept staff see all bookings and units (role-based). Weekly summaries visible to all authenticated staff.
-- Agent inherits their own permissions — cannot access other agents' bookings.
+## Permission Model
+**v1 (demo-first)**: No login required. All tables have permissive RLS — anyone can read and write. Intentional for demo and testing.
 
-**Approved tools rule:** Only named server actions (`compute_unit_pricing`, `create_booking`, `generate_weekly_summary`) may write to the database. No raw SQL from client. No `run_any`/`send_any` patterns.
+**Lock-down sprint**:
+- **Agent**: can create bookings, see only own bookings (filter by user_id), read all units
+- **Sales Dept**: read all bookings, confirm/cancel any booking, read weekly summary, read all units
+- Enforced via RLS: `auth.uid() = user_id` for agent-scoped tables; role check for sales dept
 
-**Audit principle:** Every booking status change, every authorization, and every weekly summary generation is logged with actor, action, target, timestamp, before/after values. No silent mutations.
+## Approved-Tools Rule
+Only named server actions callable from UI: `create_booking`, `confirm_booking`, `cancel_booking`, `generate_weekly_summary`. No generic `execute_sql` or raw query passthrough.
 
-**Data integrity:** Unique constraint on unit_number prevents duplicate units. Booking creation checks unit status server-side — only "available" units can be booked. Check constraints enforce valid status enums.
+## Audit Principle
+Every booking state change writes an audit_log row with action, entity, and details. Audit logs are append-only — no update or delete path in the data-access layer. Weekly summary reads audit logs to reconstruct activity timelines.
+
+## Data Access Boundary
+All database reads and writes go through `lib/data/` — no inline queries in UI components. Server actions validate inputs before calling the data layer.
