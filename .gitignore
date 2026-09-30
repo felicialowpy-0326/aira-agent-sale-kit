@@ -10,5 +10,6 @@ npm-debug.log*
 .vercel
 .supabase/
 supabase/.temp/
+tmp/
 *.tsbuildinfo
 next-env.d.ts

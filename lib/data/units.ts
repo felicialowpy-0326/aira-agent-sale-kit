@@ -4,7 +4,7 @@ import { getTenantContext } from "@/lib/data/tenant";
 
 export async function getUnits(): Promise<Unit[]> {
   const [db, tenant]=await Promise.all([createClient(), getTenantContext()]);
-  const {data,error}=await db.from("units").select("*").eq("organization_id",tenant.organizationId).order("status").order("tower").order("floor").order("selling_price");
+  const {data,error}=await db.from("units").select("*").eq("organization_id",tenant.organizationId).eq("source_active",true).order("status").order("tower").order("floor").order("unit_number");
   if(error) throw new Error(error.message);
   return data as Unit[];
 }
