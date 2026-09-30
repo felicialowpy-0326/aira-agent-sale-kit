@@ -1,0 +1,2 @@
+export const money=(value:number)=>new Intl.NumberFormat("en-MY",{style:"currency",currency:"MYR",maximumFractionDigits:0}).format(value);
+export function currentWeek(){ const now=new Date(); const day=now.getDay()||7; const start=new Date(now); start.setDate(now.getDate()-day+1); const end=new Date(start); end.setDate(start.getDate()+6); const iso=(d:Date)=>d.toISOString().slice(0,10); return {start:iso(start),end:iso(end)}; }

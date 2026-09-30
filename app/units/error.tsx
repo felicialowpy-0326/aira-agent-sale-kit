@@ -1,0 +1,1 @@
+"use client"; export default function Error({reset}:{reset:()=>void}){return <div className="card"><h1>Inventory unavailable</h1><p className="lede">We could not reach the database.</p><button className="button" onClick={reset}>Try again</button></div>}
